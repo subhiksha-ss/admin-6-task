@@ -1,16 +1,19 @@
 package com.example.userManagement.controller;
+
 import com.example.userManagement.model.User;
 import com.example.userManagement.model.Role;
 import com.example.userManagement.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+//import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
-
 @RequestMapping("/admin")
 public class UserController {
 
@@ -19,28 +22,29 @@ public class UserController {
 
     // creating user
     @PostMapping("/users")
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.createUser(user));
     }
 
-    // getting all user
+    // only admin can get all users
     @GetMapping("/get")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    
-
-    // blocking user
+    // block/unblock user - only admin
     @PutMapping("/users/{id}/block")
-    public User blockUser(@PathVariable String id, @RequestParam boolean blocked) throws Exception {
-        return userService.blockUser(id, blocked);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> blockUser(@PathVariable String id, @RequestParam boolean blocked) throws Exception {
+        return ResponseEntity.ok(userService.blockUser(id, blocked));
     }
 
-    // Assign roles
+    // assign roles - only admin
     @PutMapping("/users/{id}/roles")
-    public User assignRoles(@PathVariable String id, @RequestBody Set<Role> roles) throws Exception {
-        return userService.assignRoles(id, roles);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> assignRoles(@PathVariable String id, @RequestBody Set<Role> roles) throws Exception {
+        return ResponseEntity.ok(userService.assignRoles(id, roles));
     }
-}
 
+}
